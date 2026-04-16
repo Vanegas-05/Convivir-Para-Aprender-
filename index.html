@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Convivir Para Aprender</title>
 
-<!-- FIREBASE (VERSIÓN SIMPLE) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -24,8 +23,6 @@ input, button, select {
 }
 
 button {
-    background: #22c55e;
-    color: white;
     cursor: pointer;
 }
 </style>
@@ -33,17 +30,27 @@ button {
 
 <body>
 
-<h1>Convivencia</h1></h1>
+<h1>Convivencia entre grupos</h1>
 
-<!-- PROFESOR -->
-<h2>Profesor</h2>
-<input id="user" placeholder="Usuario">
-<input id="pass" type="password" placeholder="Contraseña">
-<button onclick="registrar()">Registrarse</button>
-<button onclick="login()">Entrar</button>
+<!-- LOGIN -->
+<div id="login">
+    <h2>Iniciar sesión</h2>
 
+    <select id="rol">
+        <option value="profesor">Profesor</option>
+        <option value="estudiante">Estudiante</option>
+    </select>
+
+    <input id="user" placeholder="Usuario o nombre">
+    <input id="pass" type="password" placeholder="Contraseña (profesor)">
+    
+    <button onclick="entrar()">Entrar</button>
+</div>
+
+<!-- PANEL PROFESOR -->
 <div id="panelProfe" style="display:none;">
     <h2>Panel Profesor</h2>
+
     <button onclick="crearJuego()">Crear Juego</button>
     <p id="codigo"></p>
 
@@ -57,21 +64,28 @@ button {
     </select>
 
     <input id="opciones" placeholder="op1,op2,op3">
+    <input id="tiempo" placeholder="Tiempo (segundos)">
 
     <button onclick="agregarPregunta()">Agregar Pregunta</button>
     <button onclick="iniciarJuego()">Iniciar Juego</button>
+    <button onclick="siguientePregunta()">Siguiente Pregunta</button>
+
+    <h3>Jugadores en sala:</h3>
+    <ul id="listaJugadores"></ul>
 </div>
 
-<hr>
+<!-- PANEL ESTUDIANTE -->
+<div id="panelEst" style="display:none;">
+    <h2>Unirse a juego</h2>
 
-<!-- ESTUDIANTE -->
-<h2>Estudiante</h2>
-<input id="codigoEst" placeholder="Código del juego">
-<input id="nombre" placeholder="Nombre">
-<button onclick="unirse()">Unirse</button>
+    <input id="codigoEst" placeholder="Código del juego">
+    <input id="nombre" placeholder="Nombre">
 
-<div id="juego"></div>
-<h3 id="puntaje"></h3>
+    <button onclick="unirse()">Unirse</button>
+
+    <div id="juego"></div>
+    <h3 id="puntaje"></h3>
+</div>
 
 <script src="app.js"></script>
 </body>
