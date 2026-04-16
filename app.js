@@ -54,13 +54,13 @@ window.onload = () => {
     let rol = localStorage.getItem("rol");
 
     if (rol === "profesor") {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("panelProfe").style.display = "block";
+        login.style.display = "none";
+        panelProfe.style.display = "block";
     }
 
     if (rol === "estudiante") {
-        document.getElementById("login").style.display = "none";
-        document.getElementById("panelEst").style.display = "block";
+        login.style.display = "none";
+        panelEst.style.display = "block";
     }
 };
 
@@ -156,7 +156,7 @@ function unirse() {
     });
 }
 
-// ESCUCHAR JUEGO
+// ESCUCHAR
 function escucharJuego() {
     db.ref("juegos/" + codigoJuego).on("value", snap => {
         let juego = snap.val();
