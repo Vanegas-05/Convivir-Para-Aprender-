@@ -72,14 +72,23 @@ let jugador = "";
 let codigoJuego = "";
 
 function unirse() {
-    jugador = nombre.value;
-    codigoJuego = codigoEst.value;
+    jugador = document.getElementById("nombre").value;
+    codigoJuego = document.getElementById("codigoEst").value;
 
-    db.ref("juegos/" + codigoJuego + "/jugadores/" + jugador).set({
-        puntaje: 0
+    let ref = db.ref("juegos/" + codigoJuego);
+
+    ref.once("value", snap => {
+        if (!snap.exists()) {
+            alert("El juego no existe");
+            return;
+        }
+
+        db.ref("juegos/" + codigoJuego + "/jugadores/" + jugador).set({
+            puntaje: 0
+        });
+
+        escucharJuego();
     });
-
-    escucharJuego();
 }
 
 // ===== ESCUCHAR CAMBIOS =====
