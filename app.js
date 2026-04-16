@@ -1,4 +1,4 @@
-// ===== CONFIG FIREBASE =====
+// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyBuXUkKafWADBz-ljYIKb59maZE4RYaLDw",
   authDomain: "convivir-para-aprender.firebaseapp.com",
@@ -9,25 +9,62 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ===== PROFESOR =====
-function registrar() {
-    localStorage.setItem("profe", JSON.stringify({
-        user: user.value,
-        pass: pass.value
-    }));
-    alert("Profesor registrado");
-}
+// ===== LOGIN =====
+function entrar() {
+    let rol = document.getElementById("rol").value;
+    let userInput = document.getElementById("user").value;
+    let passInput = document.getElementById("pass").value;
 
-function login() {
-    let p = JSON.parse(localStorage.getItem("profe"));
-    if (p && p.user === user.value && p.pass === pass.value) {
-        panelProfe.style.display = "block";
-    } else {
-        alert("Datos incorrectos");
+    if (rol === "profesor") {
+        let p = JSON.parse(localStorage.getItem("profe"));
+
+        if (!p) {
+            localStorage.setItem("profe", JSON.stringify({
+                user: userInput,
+                pass: passInput
+            }));
+        }
+
+        if (p && p.user !== userInput) {
+            alert("Usuario incorrecto");
+            return;
+        }
+
+        if (p && p.pass !== passInput) {
+            alert("Contraseña incorrecta");
+            return;
+        }
+
+        localStorage.setItem("rol", "profesor");
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panelProfe").style.display = "block";
+    }
+
+    if (rol === "estudiante") {
+        localStorage.setItem("rol", "estudiante");
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panelEst").style.display = "block";
     }
 }
 
-// ===== CREAR JUEGO =====
+// AUTO LOGIN
+window.onload = () => {
+    let rol = localStorage.getItem("rol");
+
+    if (rol === "profesor") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panelProfe").style.display = "block";
+    }
+
+    if (rol === "estudiante") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panelEst").style.display = "block";
+    }
+};
+
+// ===== JUEGO =====
 let codigoActual = "";
 
 function crearJuego() {
@@ -36,13 +73,30 @@ function crearJuego() {
     db.ref("juegos/" + codigoActual).set({
         estado: "esperando",
         preguntas: [],
-        index: 0
+        index: 0,
+        jugadores: {}
     });
 
-    codigo.innerText = "Código del juego: " + codigoActual;
+    document.getElementById("codigo").innerText = "Código: " + codigoActual;
+
+    escucharJugadores();
 }
 
-// ===== AGREGAR PREGUNTA =====
+// JUGADORES EN VIVO
+function escucharJugadores() {
+    db.ref("juegos/" + codigoActual + "/jugadores").on("value", snap => {
+        let jugadores = snap.val() || {};
+        let lista = document.getElementById("listaJugadores");
+
+        lista.innerHTML = "";
+
+        Object.keys(jugadores).forEach(nombre => {
+            lista.innerHTML += `<li>${nombre} - ${jugadores[nombre].puntaje} pts</li>`;
+        });
+    });
+}
+
+// AGREGAR PREGUNTA
 function agregarPregunta() {
     let ref = db.ref("juegos/" + codigoActual + "/preguntas");
 
@@ -53,6 +107,7 @@ function agregarPregunta() {
             texto: pregunta.value,
             correcta: correcta.value,
             tipo: tipo.value,
+            tiempo: parseInt(document.getElementById("tiempo").value),
             opciones: opciones.value.split(",")
         });
 
@@ -62,9 +117,19 @@ function agregarPregunta() {
     alert("Pregunta agregada");
 }
 
-// ===== INICIAR JUEGO =====
+// INICIAR
 function iniciarJuego() {
     db.ref("juegos/" + codigoActual + "/estado").set("jugando");
+}
+
+// SIGUIENTE
+function siguientePregunta() {
+    let ref = db.ref("juegos/" + codigoActual);
+
+    ref.once("value", snap => {
+        let juego = snap.val();
+        db.ref("juegos/" + codigoActual + "/index").set(juego.index + 1);
+    });
 }
 
 // ===== ESTUDIANTE =====
@@ -91,7 +156,7 @@ function unirse() {
     });
 }
 
-// ===== ESCUCHAR CAMBIOS =====
+// ESCUCHAR JUEGO
 function escucharJuego() {
     db.ref("juegos/" + codigoJuego).on("value", snap => {
         let juego = snap.val();
@@ -103,15 +168,16 @@ function escucharJuego() {
     });
 }
 
-// ===== MOSTRAR PREGUNTA =====
+// MOSTRAR
 function mostrarPregunta(juego) {
     let p = juego.preguntas[juego.index];
+
     if (!p) {
-        juegoDiv.innerHTML = "<h2>🎉 Juego terminado</h2>";
+        document.getElementById("juego").innerHTML = "<h2>🎉 Juego terminado</h2>";
         return;
     }
 
-    let html = `<h2>${p.texto}</h2>`;
+    let html = `<h2>${p.texto}</h2><p id="tiempoTexto"></p>`;
 
     if (p.tipo === "quiz") {
         p.opciones.forEach(op => {
@@ -131,9 +197,20 @@ function mostrarPregunta(juego) {
     }
 
     document.getElementById("juego").innerHTML = html;
+
+    let tiempoRestante = p.tiempo || 10;
+
+    let timer = setInterval(() => {
+        let t = document.getElementById("tiempoTexto");
+        if (t) t.innerText = "Tiempo: " + tiempoRestante;
+
+        tiempoRestante--;
+
+        if (tiempoRestante < 0) clearInterval(timer);
+    }, 1000);
 }
 
-// ===== RESPONDER =====
+// RESPONDER
 function responder(resp) {
     let ref = db.ref("juegos/" + codigoJuego);
 
@@ -150,7 +227,5 @@ function responder(resp) {
                 document.getElementById("puntaje").innerText = "Puntaje: " + nuevo;
             });
         }
-
-        db.ref("juegos/" + codigoJuego + "/index").set(juego.index + 1);
     });
 }
