@@ -10,6 +10,24 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 // ===== LOGIN =====
+
+function registrar() {
+    let user = document.getElementById("user").value;
+    let pass = document.getElementById("pass").value;
+
+    if (!user || !pass) {
+        alert("Completa todos los campos");
+        return;
+    }
+
+    db.ref("usuarios/" + user).set({
+        password: pass,
+        rol: "profesor"
+    });
+
+    alert("Profesor registrado en Convivir Para Aprender");
+}
+
 function entrar() {
     let rol = document.getElementById("rol").value;
     let userInput = document.getElementById("user").value;
