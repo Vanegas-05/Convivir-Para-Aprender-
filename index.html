@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>EduGames PRO</title>
+
+<!-- FIREBASE (VERSIÓN SIMPLE) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<style>
+body {
+    background: #0f172a;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+}
+
+input, button, select {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 15px;
+    border: none;
+}
+
+button {
+    background: #22c55e;
+    color: white;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 EduGames PRO</h1>
+
+<!-- PROFESOR -->
+<h2>Profesor</h2>
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="registrar()">Registrarse</button>
+<button onclick="login()">Entrar</button>
+
+<div id="panelProfe" style="display:none;">
+    <h2>Panel Profesor</h2>
+    <button onclick="crearJuego()">Crear Juego</button>
+    <p id="codigo"></p>
+
+    <input id="pregunta" placeholder="Pregunta">
+    <input id="correcta" placeholder="Respuesta correcta">
+
+    <select id="tipo">
+        <option value="quiz">Quiz</option>
+        <option value="vf">Verdadero/Falso</option>
+        <option value="carta">Carta</option>
+    </select>
+
+    <input id="opciones" placeholder="op1,op2,op3">
+
+    <button onclick="agregarPregunta()">Agregar Pregunta</button>
+    <button onclick="iniciarJuego()">Iniciar Juego</button>
+</div>
+
+<hr>
+
+<!-- ESTUDIANTE -->
+<h2>Estudiante</h2>
+<input id="codigoEst" placeholder="Código del juego">
+<input id="nombre" placeholder="Nombre">
+<button onclick="unirse()">Unirse</button>
+
+<div id="juego"></div>
+<h3 id="puntaje"></h3>
+
+<script src="app.js"></script>
+</body>
+</html>
